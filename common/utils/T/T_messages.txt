@@ -127,6 +127,14 @@ ID = GNB_PHY_DL_OUTPUT_SIGNAL
     DESC = gNodeB output data in the freq domain for slots
     GROUP = ALL:PHY:GRAPHIC:HEAVY:GNB
     FORMAT = int,gNB_ID : int,frame : int,slot : int,antenna : buffer,txdata
+ID = GNB_PHY_UL_TIME_CHANNEL_ESTIMATE_COMPLETE
+    DESC = gNodeB channel estimation in the time domain custom
+    GROUP = ALL:PHY:GRAPHIC:HEAVY:GNB
+    FORMAT = int,gNB_ID : int,rnti : int,frame : buffer,srs_received_signal : buffer,srs_estimated_channel_freq : buffer,srs_estimated_channel_time : int,antenna : buffer,chest_t
+ID = GNB_PHY_UL_TIME_CHANNEL_ESTIMATE_COMPLETE_V2
+    DESC = gNodeB channel estimation in the time domain custom only using raw values
+    GROUP = ALL:PHY:GRAPHIC:HEAVY:GNB
+    FORMAT = int,antenna : int,ofdm : int,symb : int,ports : buffer,srs_received_signal : buffer,srs_estimated_channel_freq : buffer,srs_estimated_channel_time : buffer,srs_estimated_channel_time_shifted : buffer,srs_generated_signal
 
 #MAC logs
 ID = ENB_MAC_UE_DL_SDU
@@ -290,7 +298,7 @@ ID = ENB_RRC_CONNECTION_RECONFIGURATION
 ID = ENB_RRC_MEASUREMENT_REPORT
     DESC = RRC measurement report
     GROUP = ALL:RRC:ENB
-    FORMAT = int,eNB_ID : int,frame : int,subframe : int,rnti
+    FORMAT = int,eNB_ID : int,frame : int,subframe : int,rnticomplete
 ID = ENB_RRC_HANDOVER_PREPARATION_INFORMATION
     DESC = RRC handover preparation information
     GROUP = ALL:RRC:ENB
