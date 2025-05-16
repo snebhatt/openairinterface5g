@@ -923,6 +923,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, N
         int32_t srs_estimated_channel_time_shifted[frame_parms->nb_antennas_rx][1 << srs_pdu->num_ant_ports][frame_parms->ofdm_symbol_size];
         int8_t snr_per_rb[srs_pdu->bwp_size];
 
+
         start_meas(&gNB->generate_srs_stats);
         if (check_srs_pdu(srs_pdu, &gNB->nr_srs_info[i]->srs_pdu) == 0) {
           generate_srs_nr(srs_pdu, frame_parms, gNB->nr_srs_info[i]->srs_generated_signal, 0, gNB->nr_srs_info[i], AMP, frame_rx, slot_rx);
@@ -967,8 +968,54 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, N
           T_INT(srs_pdu->rnti),
           T_INT(frame_rx),
           T_INT(0),
-          T_INT(0),
+          T_INT(frame_parms->nb_antennas_rx),
           T_BUFFER(srs_estimated_channel_time_shifted[0][0], frame_parms->ofdm_symbol_size * sizeof(int32_t)));
+
+
+        T(T_GNB_PHY_UL_TIME_CHANNEL_ESTIMATE_COMPLETE,
+          T_INT(gNB->Mod_id),
+          T_INT(srs_pdu->rnti),
+          T_INT(frame_rx),
+          T_BUFFER(srs_received_signal, frame_parms->nb_antennas_rx * frame_parms->ofdm_symbol_size * N_symb_SRS * sizeof(int32_t)),
+          T_BUFFER(srs_estimated_channel_freq, frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) * frame_parms->ofdm_symbol_size * N_symb_SRS * sizeof(int32_t)),
+          T_BUFFER(srs_estimated_channel_time, frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) * frame_parms->ofdm_symbol_size * sizeof(int32_t)),
+          T_INT(frame_parms->nb_antennas_rx),
+          T_BUFFER(srs_estimated_channel_time_shifted, frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) * frame_parms->ofdm_symbol_size * sizeof(int32_t)));
+
+
+        T(T_GNB_PHY_UL_TIME_CHANNEL_ESTIMATE_COMPLETE_V2,
+          T_INT(frame_parms->nb_antennas_rx),
+          T_INT(frame_parms->ofdm_symbol_size),
+          T_INT((1 << srs_pdu->num_ant_ports)),
+          T_INT(N_symb_SRS),
+            // srs_received_signal: [nb_antennas_rx][ofdm_symbol_size * N_symb_SRS]
+            // flattens a 2D array into a 1D buffer by taking its base address
+          T_BUFFER((void *)&srs_received_signal[0][0],
+          frame_parms->nb_antennas_rx * frame_parms->ofdm_symbol_size * N_symb_SRS * sizeof(int32_t)),
+
+          // srs_estimated_channel_freq: [ant][ports][samples]
+          T_BUFFER((void *)&srs_estimated_channel_freq[0][0][0],
+            frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) *
+            frame_parms->ofdm_symbol_size * N_symb_SRS),
+
+          // srs_estimated_channel_time: [ant][ports][samples]
+          T_BUFFER((void *)&srs_estimated_channel_time[0][0],
+            frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) *
+            frame_parms->ofdm_symbol_size * sizeof(int32_t)),
+
+          // srs_estimated_channel_time_shifted: same shape as above
+          T_BUFFER((void *)&srs_estimated_channel_time_shifted[0][0],
+            frame_parms->nb_antennas_rx * (1 << srs_pdu->num_ant_ports) *
+            frame_parms->ofdm_symbol_size * sizeof(int32_t)),
+
+          // srs_generated_signal: flat array of int16_t I/Q interleaved
+          T_BUFFER((void *)gNB->nr_srs_info[i]->srs_generated_signal,
+            frame_parms->nb_antennas_rx * frame_parms->ofdm_symbol_size *
+            N_symb_SRS * sizeof(int16_t) * 2) // 2 for I and Q
+          );
+    
+
+
 
         UL_INFO->srs_ind.sfn = frame_rx;
         UL_INFO->srs_ind.slot = slot_rx;
