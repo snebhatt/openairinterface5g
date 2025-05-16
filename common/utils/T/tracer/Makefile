@@ -65,6 +65,31 @@ gnb: utils.o gnb.o database.o event.o handler.o configuration.o \
          filter/filter.a
 	$(CC) $(CFLAGS) -o gnb $^ $(LIBS) $(XLIBS)
 
+gnb_gui: utils.o gnb_gui.o database.o event.o handler.o configuration.o \
+         view/view.a gui/gui.a logger/logger.a \
+         filter/filter.a
+	$(CC) $(CFLAGS) -o gnb_gui $^ $(LIBS) $(XLIBS)
+
+test: utils.o test.o database.o event.o handler.o configuration.o \
+         view/view.a gui/gui.a logger/logger.a \
+         filter/filter.a
+	$(CC) $(CFLAGS) -o test $^ $(LIBS) $(XLIBS)
+
+trace_ldpc: trace_ldpc.o utils.o database.o event.o handler.o configuration.o logger/logger.a filter/filter.a
+	$(CC) $(CFLAGS) -o trace_ldpc $^ $(LIBS)
+
+trace_channel_est: trace_channel_est.o utils.o database.o event.o handler.o configuration.o logger/logger.a filter/filter.a
+	$(CC) $(CFLAGS) -o trace_channel_est $^ $(LIBS)
+
+channel_est_complete: channel_est_complete.o utils.o database.o event.o handler.o configuration.o logger/logger.a filter/filter.a
+	$(CC) $(CFLAGS) -o channel_est_complete $^ $(LIBS)
+
+channel_est_complete_v2: channel_est_complete_v2.o utils.o database.o event.o handler.o configuration.o logger/logger.a filter/filter.a
+	$(CC) $(CFLAGS) -o channel_est_complete_v2 $^ $(LIBS)
+
+channel_est_complete_v3: channel_est_complete_v3.o utils.o database.o event.o handler.o configuration.o logger/logger.a filter/filter.a
+	$(CC) $(CFLAGS) -o channel_est_complete_v3 $^ $(LIBS)
+
 multi.o: ../incgen/T_IDs.h
 
 ../incgen/T_IDs.h: ../T_messages.txt
